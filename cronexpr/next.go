@@ -37,7 +37,7 @@ func (e *Expr) NextWithContext(ctx context.Context, from time.Time) (time.Time, 
 		refs[i] = field.FieldRef{Kind: f.Kind, Bitmap: f.Bitmap}
 	}
 	ev := field.NewEvaluator(refs, e.withSecond)
-	t, ok, err := ev.NextAfter(context.Background(), local)
+	t, ok, err := ev.NextAfter(ctx, local)
 	if err != nil {
 		return time.Time{}, wrapCancel(err)
 	}

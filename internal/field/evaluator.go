@@ -30,6 +30,15 @@ func (ev *Evaluator) NextAfter(ctx context.Context, t time.Time) (time.Time, boo
 	}
 	cur := t.Add(stepFor(ev.withSecond))
 	for i := 0; i < maxScan; i++ {
+		// Poll cancellation periodically so a canceled context interrupts the
+		// scan promptly instead of spinning through the whole maxScan window.
+		// Every iteration would hammer ctx.Err() on hot paths; every 1024th
+		// still returns within ~one minute of cancellation for minute cron.
+		if i&0x3ff == 0 {
+			if err := ctx.Err(); err != nil {
+				return time.Time{}, false, err
+			}
+		}
 		if ev.matches(cur) {
 			return cur, true, nil
 		}
