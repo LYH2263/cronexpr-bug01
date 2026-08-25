@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8"/>
+  <title>Cron Planner</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 720px; }
+    input, textarea { width: 100%; padding: .5rem; margin: .25rem 0 1rem; }
+    button { padding: .5rem 1rem; }
+    pre { background: #f4f4f4; padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Cron 表达式规划台</h1>
+  <label>表达式</label>
+  <input id="spec" value="0 */5 * * * *"/>
+  <label>时区</label>
+  <input id="tz" value="Asia/Shanghai"/>
+  <button id="go">计算接下来 5 次</button>
+  <pre id="out"></pre>
+  <script>
+    document.getElementById('go').onclick = async () => {
+      const spec = document.getElementById('spec').value;
+      const timezone = document.getElementById('tz').value;
+      const r = await fetch('/api/next', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({spec, timezone, count: 5})
+      });
+      const j = await r.json();
+      document.getElementById('out').textContent = JSON.stringify(j, null, 2);
+    };
+  </script>
+</body>
+</html>
